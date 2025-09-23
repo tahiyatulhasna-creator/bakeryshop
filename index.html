@@ -17,49 +17,61 @@
       <input id="search" type="text" placeholder="Cari roti..." 
        onkeyup="filterProducts()" 
        class="px-3 py-2 border rounded-lg w-1/2"> 
-      <button id="cart-btn" class="flex items-center gap-1 bg-[#A0522D] text-white px-3 py-2 rounded-lg">
-        🛒 Keranjang (<span id="cart-count">0</span>)
-      </button>
+
+      <!-- Ikon Keranjang -->
+<button id="cart-btn" class="relative">
+  🛒
+  <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 rounded-full">0</span>
+</button>
+
     </div>
   </header>
 
-  <!-- Filter Kategori -->
-  <div class="max-w-6xl mx-auto px-4 mt-4 flex gap-3 overflow-x-auto">
-    <button class="px-4 py-2 rounded-full bg-[#A0522D] text-white">All varian</button>
-    <button class="px-4 py-2 rounded-full bg-white border">cake</button>
-    <button class="px-4 py-2 rounded-full bg-white border">Pastry</button>
-    <button class="px-4 py-2 rounded-full bg-white border">Roti</button>
-  </div>
+  <!-- Kategori -->
+<nav class="max-w-6xl mx-auto px-4 mt-6 flex space-x-3">
+  <button onclick="filterCategory('all')" 
+          class="bg-[#8B4513] text-white px-4 py-2 rounded hover:bg-[#A0522D]">All</button>
+  <button onclick="filterCategory('cake')" 
+          class="bg-[#8B4513] text-white px-4 py-2 rounded hover:bg-[#A0522D]">Cake</button>
+  <button onclick="filterCategory('roti')" 
+          class="bg-[#8B4513] text-white px-4 py-2 rounded hover:bg-[#A0522D]">Roti</button>
+  <button onclick="filterCategory('pastry')" 
+          class="bg-[#8B4513] text-white px-4 py-2 rounded hover:bg-[#A0522D]">Pastry</button>
+</nav>
 
   <!-- Produk -->
   <main id="product-list" 
       class="max-w-6xl mx-auto px-4 mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
   </main>
 
-  <!-- Keranjang -->
-  <div class="max-w-6xl mx-auto px-4 mt-10 bg-white rounded-xl shadow p-4">
-    <h3 class="font-bold mb-3">Keranjang Belanja</h3>
-    <ul id="cart-items" class="space-y-2 text-sm text-gray-700"></ul>
-    <div class="mt-4 font-bold">Total: Rp <span id="cart-total">0</span></div>
-    <button onclick="checkout()" 
-            class="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+ <!-- Keranjang -->
+<div id="cart-section" class="max-w-6xl mx-auto px-4 mt-10 bg-white rounded-xl shadow p-4 ">
+  <h3 class="font-bold mb-3">Keranjang Belanja</h3>
+  <ul id="cart-items" class="space-y-2 text-sm text-gray-700"></ul>
+  <div class="mt-4 font-bold">Total: Rp <span id="cart-total">0</span></div>
 
-            <div class="mt-4">
-  <label for="customer-name" class="block font-semibold mb-1">Nama Pemesan:</label>
-  <input type="text" id="customer-name" placeholder="Masukkan nama Anda" 
-         class="px-3 py-2 border rounded-lg w-full">
+  <div class="mt-4">
+    <label for="customer-name" class="block font-semibold mb-1">Nama Pemesan:</label>
+    <input type="text" id="customer-name" placeholder="Masukkan nama Anda" 
+           class="px-3 py-2 border rounded-lg w-full mb-2">
+    
+    <label for="customer-address" class="block font-semibold mb-1">Alamat Pemesan:</label>
+    <input type="text" id="customer-address" placeholder="Masukkan alamat Anda" 
+           class="px-3 py-2 border rounded-lg w-full">
+  </div>
+
+  <button onclick="checkout()" 
+          class="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+    Checkout
+  </button>
+  <div id="checkout-summary" 
+       class="mt-4 hidden bg-green-50 p-3 rounded-lg border border-green-200"></div>
 </div>
 
-      Checkout
-    </button>
-    <div id="checkout-summary" class="mt-4 hidden bg-green-50 p-3 rounded-lg border border-green-200"></div>
-  </div>
-  <div id="notification" 
-       class="fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow hidden">
-    Pesanan berhasil dibuat!
-  </div>
-
-
+<div id="notification" 
+     class="fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow hidden">
+  Pesanan berhasil dibuat!
+</div>
 
   <!-- Footer -->
   <footer class="bg-white mt-12 border-t">
@@ -70,59 +82,59 @@
   </footer>
 
   <script>
-const products = [
-  { name: "Strawberrycheesecake", price: 20000, img: "strawberry.cheesecake.jpg" },
-  { name: "Croissant Mentega", price: 15000, img: "croisant.jpg" },
-  { name: "Muffin", price: 10000, img: "muffin.jpg" },
-  { name: "Brownies", price: 15000, img: "brownies.jpg" },
-  { name: "Strawberry puff", price: 15000, img: "strawberry.puff.jpg" },
-  { name: "Kue tart", price: 60000, img: "kue.tart.jpg" },
-  { name: "Donut", price: 10000, img: "donat.jpg" }
-];
+ const products = [
+      { id: 1, name: "Strawberry Cheesecake", price: 20000, image: "strawberry.cheesecake.jpg", category: "cake" },
+      { id: 2, name: "Croissant Mentega", price: 15000, image: "croisant.jpg", category: "pastry" },
+      { id: 3, name: "Muffin", price: 10000, image: "muffin.jpg", category: "cake" },
+      { id: 4, name: "Brownies", price: 15000, image: "brownies.jpg", category: "cake" },
+      { id: 5, name: "Strawberry Puff", price: 15000, image: "strawberry.puff.jpg", category: "pastry" },
+      { id: 6, name: "Kue Tart", price: 60000, image: "kue.tart.jpg", category: "cake" },
+      { id: 7, name: "Donut", price: 10000, image: "donat.jpg", category: "roti" }
+    ];
 
-let cart = [];
-let total = 0;
+    let cart = [];
+    let total = 0;
 
-// Render produk ke halaman
-function renderProducts(list) {
-  const container = document.getElementById("product-list");
-  container.innerHTML = "";
-  list.forEach(p => {
-    container.innerHTML += `
-      <div class="bg-white rounded-xl shadow p-4 flex flex-col">
-        <img src="${p.img}" alt="${p.name}" class="h-40 w-full object-cover rounded">
-        <h2 class="mt-2 font-bold">${p.name}</h2>
-        <div class="mt-2 font-semibold">Rp ${p.price.toLocaleString("id-ID")}</div>
-        <button onclick="addToCart('${p.name}', ${p.price})" 
-                class="mt-auto bg-[#8B4513] text-white py-2 rounded-lg hover:bg-orange-600">
-          Tambah ke Keranjang
-        </button>
-      </div>
-    `;
-  });
-}
+    // Tampilkan produk
+    const productList = document.getElementById("product-list");
+    function displayProducts(list) {
+      productList.innerHTML = "";
+      list.forEach(p => {
+        productList.innerHTML += `
+          <div class="bg-white shadow rounded-lg overflow-hidden">
+            <img src="${p.image}" alt="${p.name}" class="w-full h-40 object-cover">
+            <div class="p-4">
+              <h4 class="font-bold text-lg text-[#8B4513]">${p.name}</h4>
+              <p class="text-gray-600">Rp ${p.price.toLocaleString("id-ID")}</p>
+              <button onclick="addToCart(${p.id})" 
+                      class="mt-2 bg-[#8B4513] text-white px-3 py-1 rounded hover:bg-[#A0522D]">
+                Tambah ke Keranjang
+              </button>
+            </div>
+          </div>`;
+      });
+    }
+    displayProducts(products);
 
-renderProducts(products);
+    // Filter kategori
+    function filterCategory(cat) {
+      if (cat === "all") {
+        displayProducts(products);
+      } else {
+        const filtered = products.filter(p => p.category === cat);
+        displayProducts(filtered);
+      }
+    }
 
-function filterProducts() {
-  const query = document.getElementById("search").value.toLowerCase();
-  const filtered = products.filter(p => p.name.toLowerCase().includes(query));
-  renderProducts(filtered);
-}
+    // Tambah ke keranjang
+    function addToCart(id) {
+      const product = products.find(p => p.id === id);
+      cart.push(product);
+      total += product.price;
+      updateCart();
+    }
 
-function addToCart(name, price) {
-  cart.push({ name, price });
-  total += price;
-  updateCart();
-}
-
-function removeFromCart(index) {
-  total -= cart[index].price;
-  cart.splice(index, 1);
-  updateCart();
-}
-
-function updateCart() {
+    function updateCart() {
   const cartList = document.getElementById("cart-items");
   cartList.innerHTML = "";
 
@@ -136,54 +148,67 @@ function updateCart() {
     cartList.appendChild(li);
   });
 
+  // update total
   document.getElementById("cart-total").textContent = total.toLocaleString("id-ID");
+  
+  // update jumlah item di ikon 🛒
   document.getElementById("cart-count").textContent = cart.length;
 }
 
-function checkout() {
+
+    // Checkout
+    function checkout() {
   const customerName = document.getElementById("customer-name").value.trim();
+  const customerAddress = document.getElementById("customer-address").value.trim();
 
   if (cart.length === 0) {
     alert("Keranjang masih kosong!");
     return;
   }
-
-  if (customerName === "") {
-    alert("Silakan masukkan nama Anda!");
+  if (customerName === "" || customerAddress === "") {
+    alert("Silakan masukkan nama dan alamat Anda!");
     return;
   }
 
   // Buat ringkasan nota
-  let summary = `<p>Pesanan <span class="text-[#8B4513] font-bold">${customerName}</span>:</p><ul>`;
+  let summary = `<p>Pesanan <span class="text-[#8B4513] font-bold">${customerName}</span></p>`;
+  summary += `<p class="text-sm text-gray-600 mb-2">Alamat: ${customerAddress}</p><ul>`;
   cart.forEach(item => {
     summary += `<li>${item.name} - Rp ${item.price.toLocaleString("id-ID")}</li>`;
   });
-  summary += `</ul><p>Total: Rp ${total.toLocaleString("id-ID")}</p>`;
+  summary += `</ul><p class="mt-2 font-bold">Total: Rp ${total.toLocaleString("id-ID")}</p>`;
 
   // tampilkan ringkasan
   const checkoutBox = document.getElementById("checkout-summary");
   checkoutBox.classList.remove("hidden");
   checkoutBox.innerHTML = summary;
 
-
   // tampilkan notifikasi
   showNotification(customerName);
 
-  // reset keranjang & input nama
+  // reset keranjang & input
   cart = [];
   total = 0;
   updateCart();
   document.getElementById("customer-name").value = "";
+  document.getElementById("customer-address").value = "";
 }
 
-function showNotification(name) {
-  const notif = document.getElementById("notification");
-  notif.innerHTML = `Pesanan <span class="font-bold text-[#FFF8DC]">${name}</span> berhasil dibuat!`;
-  notif.classList.remove("hidden");
-  setTimeout(() => notif.classList.add("hidden"), 3000);
-}
+    // Notifikasi
+    function showNotification(name) {
+      const notif = document.getElementById("notification");
+      notif.innerText = `Pesanan atas nama ${name} berhasil dibuat!`;
+      notif.classList.remove("hidden");
+      setTimeout(() => notif.classList.add("hidden"), 3000);
+    }
 
-</script>
+    // Fitur pencarian
+    document.getElementById("search").addEventListener("input", e => {
+      const keyword = e.target.value.toLowerCase();
+      const filtered = products.filter(p => p.name.toLowerCase().includes(keyword));
+      displayProducts(filtered);
+});
 
-
-
+  </script>
+</body>
+</html>
