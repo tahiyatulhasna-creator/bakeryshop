@@ -1,0 +1,228 @@
+<<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>bakery shop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white">
+
+  <!-- Header -->
+  <header class="bg-white shadow sticky top-0 z-20">
+    <div class="max-w-6xl mx-auto flex items-center justify-between p-4">
+      <div class="flex items-center gap-2">
+        <img src="menu roti/logo.png" alt="Bakeryshop Logo" class="h-16 w-16 object-cover">
+        <h1 class="text-xl font-bold text-[#4B3621]">Bakeryshop</h1>
+        <input id="search" type="text" placeholder="Cari roti..." 
+          onkeyup="filterProducts()" 
+          class="px-3 py-2 border rounded-lg w-1/2"> 
+        <!-- Ikon Keranjang -->
+        <button id="cart-btn" class="relative">
+          🛒
+          <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 rounded-full">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Kategori -->
+  <nav class="max-w-6xl mx-auto px-4 mt-6 flex space-x-3">
+    <button onclick="filterCategory('all')" class="bg-[#8B4513] text-white px-4 py-2 rounded hover:bg-[#A0522D]">All</button>
+    <button onclick="filterCategory('cake')" class="bg-[#8B4513] text-white px-4 py-2 rounded hover:bg-[#A0522D]">Cake</button>
+    <button onclick="filterCategory('roti')" class="bg-[#8B4513] text-white px-4 py-2 rounded hover:bg-[#A0522D]">Roti</button>
+    <button onclick="filterCategory('pastry')" class="bg-[#8B4513] text-white px-4 py-2 rounded hover:bg-[#A0522D]">Pastry</button>
+  </nav>
+
+  <!-- Produk -->
+  <main id="product-list" class="max-w-6xl mx-auto px-4 mt-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+  </main>
+
+  <!-- Keranjang -->
+  <div id="cart-section" class="max-w-6xl mx-auto px-4 mt-10 bg-white rounded-xl shadow p-4">
+    <h3 class="font-bold mb-3">Keranjang Belanja</h3>
+    <ul id="cart-items" class="space-y-2 text-sm text-gray-700"></ul>
+    <div class="mt-4 font-bold">Total: Rp <span id="cart-total">0</span></div>
+
+    <div class="mt-4">
+      <label for="customer-name" class="block font-semibold mb-1">Nama Pemesan:</label>
+      <input type="text" id="customer-name" placeholder="Masukkan nama Anda" class="px-3 py-2 border rounded-lg w-full mb-2">
+      
+      <label for="customer-address" class="block font-semibold mb-1">Alamat Pemesan:</label>
+      <input type="text" id="customer-address" placeholder="Masukkan alamat Anda" class="px-3 py-2 border rounded-lg w-full">
+    </div>
+
+    <button onclick="checkout()" class="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">
+      Checkout
+    </button>
+    <div id="checkout-summary" class="mt-4 hidden bg-green-50 p-3 rounded-lg border border-green-200"></div>
+  </div>
+
+  <!-- QR Code pembayaran -->
+  <div id="payment-section" class="hidden mt-6 p-4 border rounded-lg bg-gray-50">
+    <h3 class="font-bold mb-2">Scan QR untuk Pembayaran</h3>
+    <div id="qrcode"></div>
+  </div>
+
+  <div id="notification" class="fixed top-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow hidden">
+    Pesanan berhasil dibuat!
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white mt-12 border-t">
+    <div class="max-w-6xl mx-auto px-4 py-4 text-sm text-gray-600 flex justify-between">
+      <span>© 2025 bakeryshop</span>
+      <span>Jl. Mawar desa Penusupan Kec. Pangkah</span>
+    </div>
+  </footer>
+
+  <!-- QR Code Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+const products = [
+  { id: 1, name: "Strawberry Cheesecake", price: 20000, image: "menu roti/Strawberry Cheesecake.jpg", category: "cake" },
+  { id: 2, name: "Croissant Mentega", price: 15000, image: "menu roti/croisant.jpg", category: "pastry" },
+  { id: 3, name: "Muffin", price: 10000, image: "menu roti/muffin.jpg", category: "cake" },
+  { id: 4, name: "Brownies", price: 15000, image: "menu roti/brownies.jpg", category: "cake" },
+  { id: 5, name: "Strawberry Puff", price: 15000, image: "menu roti/strawberry puff.jpg", category: "pastry" },
+  { id: 6, name: "Kue Tart", price: 60000, image: "menu roti/kue tart.jpg", category: "cake" },
+  { id: 7, name: "Donut", price: 10000, image: "menu roti/donat.jpg", category: "roti" }
+];
+
+let cart = [];
+let total = 0;
+
+// Tampilkan produk
+const productList = document.getElementById("product-list");
+function displayProducts(list) {
+  productList.innerHTML = "";
+  list.forEach(p => {
+    productList.innerHTML += `
+      <div class="bg-white shadow rounded-lg overflow-hidden">
+        <img src="${p.image}" alt="${p.name}" class="w-full h-40 object-cover">
+        <div class="p-4">
+          <h4 class="font-bold text-lg text-[#8B4513]">${p.name}</h4>
+          <p class="text-gray-600">Rp ${p.price.toLocaleString("id-ID")}</p>
+          <div class="flex items-center gap-2 mt-2">
+            <label class="text-sm">Qty:</label>
+            <input id="qty-${p.id}" type="number" value="1" min="1" class="w-16 border rounded px-2 py-1 text-center">
+          </div>
+          <button onclick="addToCart(${p.id})" 
+                  class="mt-2 bg-[#8B4513] text-white px-3 py-1 rounded hover:bg-[#A0522D]">
+            Tambah ke Keranjang
+          </button>
+        </div>
+      </div>`;
+  });
+}
+displayProducts(products);
+
+// Filter berdasarkan kategori
+  function filterCategory(category) {
+    if (category === "all") {
+      displayProducts(products);
+    } else {
+      const filtered = products.filter(p => p.category === category);
+      displayProducts(filtered);
+    }
+  }
+
+  // Filter berdasarkan pencarian
+  function filterProducts() {
+    const query = document.getElementById("search").value.toLowerCase();
+    const filtered = products.filter(p => p.name.toLowerCase().includes(query));
+    displayProducts(filtered);
+  }
+
+// Tambah ke keranjang
+function addToCart(id) {
+  const product = products.find(p => p.id === id);
+  const qtyInput = document.getElementById(`qty-${id}`);
+  const qty = parseInt(qtyInput.value) || 1;
+
+  cart.push({ ...product, qty });
+  total += product.price * qty;
+  updateCart();
+}
+
+// Hapus dari keranjang
+function removeFromCart(index) {
+  total -= cart[index].price * cart[index].qty;
+  cart.splice(index, 1);
+  updateCart();
+}
+
+// Update isi keranjang
+function updateCart() {
+  const cartList = document.getElementById("cart-items");
+  cartList.innerHTML = "";
+
+  cart.forEach((item, index) => {
+    let li = document.createElement("li");
+    li.className = "flex justify-between items-center border-b pb-1";
+    li.innerHTML = `
+      <span>${item.name} x${item.qty} - Rp ${(item.price * item.qty).toLocaleString("id-ID")}</span>
+      <button onclick="removeFromCart(${index})" class="text-red-500 text-xs">Hapus</button>
+    `;
+    cartList.appendChild(li);
+  });
+
+  document.getElementById("cart-total").textContent = total.toLocaleString("id-ID");
+  document.getElementById("cart-count").textContent = cart.length;
+}
+
+// Checkout
+function checkout() {
+  const customerName = document.getElementById("customer-name").value.trim();
+  const customerAddress = document.getElementById("customer-address").value.trim();
+
+  if (cart.length === 0) {
+    alert("Keranjang masih kosong!");
+    return;
+  }
+  if (customerName === "" || customerAddress === "") {
+    alert("Silakan masukkan nama dan alamat Anda!");
+    return;
+  }
+
+  let summary = `<p>Pesanan <span class="text-[#8B4513] font-bold">${customerName}</span></p>`;
+  summary += `<p class="text-sm text-gray-600 mb-2">Alamat: ${customerAddress}</p><ul>`;
+  cart.forEach(item => {
+    summary += `<li>${item.name} x${item.qty} - Rp ${(item.price * item.qty).toLocaleString("id-ID")}</li>`;
+  });
+  summary += `</ul><p class="mt-2 font-bold">Total: Rp ${total.toLocaleString("id-ID")}</p>`;
+
+  const checkoutBox = document.getElementById("checkout-summary");
+  checkoutBox.classList.remove("hidden");
+  checkoutBox.innerHTML = summary;
+
+  showNotification(customerName);
+
+  document.getElementById("payment-section").classList.remove("hidden");
+  document.getElementById("qrcode").innerHTML = "";
+
+  let paymentInfo = `Nama: ${customerName}\nAlamat: ${customerAddress}\nTotal: Rp ${total.toLocaleString("id-ID")}`;
+  new QRCode(document.getElementById("qrcode"), {
+    text: paymentInfo,
+    width: 200,
+    height: 200
+  });
+
+  cart = [];
+  total = 0;
+  updateCart();
+  document.getElementById("customer-name").value = "";
+  document.getElementById("customer-address").value = "";
+}
+
+// Notifikasi
+function showNotification(name) {
+  const notif = document.getElementById("notification");
+  notif.innerText = `Pesanan atas nama ${name} berhasil dibuat!`;
+  notif.classList.remove("hidden");
+  setTimeout(() => notif.classList.add("hidden"), 3000);
+}
+  </script>
+</body>
+</html>
